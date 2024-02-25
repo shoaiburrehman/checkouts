@@ -1,13 +1,12 @@
-// export type ProductModel = {
-//     id: number,
-//     name: string,
-//     level: number
-// }
-
 export type Product = {
     id: number;
     name: string;
 };
+
+export type variantsType = {
+    id: number;
+    name: string;
+}  
 
 export type ProductCategory = Product & {
     parentId?: number | undefined;

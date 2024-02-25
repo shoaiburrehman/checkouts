@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { ProductCategory } from '../../models/product.model';
-import { productsData } from '../../mock/products';
+import { useState } from 'react';
+import { ProductCategory, variantsType } from '../../models/product.model';
 
 interface UseCheckboxTreeReturnType {
   checkedItems: ProductCategory[];
@@ -9,12 +8,12 @@ interface UseCheckboxTreeReturnType {
   toggleItem: (item: ProductCategory) => void;
 }
 
-export type variantsType = {
-  id: number;
-  name: string;
+type DescendantCategoryParams = { 
+    descendant: ProductCategory | null, 
+    level: number 
 }
 
-const useProducts = (initialData?: ProductCategory[]): UseCheckboxTreeReturnType => {
+const useProducts = (productsData: ProductCategory[]): UseCheckboxTreeReturnType => {
     const [checkedItems, setCheckedItems] = useState<ProductCategory[]>([]);
     const [selectedVariants, setSelectedVariants] = useState<variantsType[]>([])
 
@@ -35,7 +34,7 @@ const useProducts = (initialData?: ProductCategory[]): UseCheckboxTreeReturnType
     const getSelectedVariants = (checkedItems: any[]) => {
         const tempVariants: variantsType[] = [];
     
-        const getDescendantCategory = (data: ProductCategory[], item: ProductCategory, level: number) => {
+        const getDescendantCategory = (data: ProductCategory[], item: ProductCategory, level: number): DescendantCategoryParams => {
             // Use a depth-first search to traverse the data tree
             for (const product of data) {
                 // If the current product matches the item's parentId, return it with level
@@ -52,12 +51,12 @@ const useProducts = (initialData?: ProductCategory[]): UseCheckboxTreeReturnType
                 }
             }
             // If no matching descendant is found, return null with level null
-            return { descendant: null, level: null };
+            return { descendant: null, level: 0 };
         };
 
-        const checkAllSelected = (item) => {
+        const checkAllSelected = (item: ProductCategory) => {
             const { descendant, level } = getDescendantCategory(productsData, item, 0);
-            return descendant.children?.every((child) => checkedItems.some((checkedItem) => checkedItem.id === child.id));
+            return descendant?.children?.every((child) => checkedItems.some((checkedItem) => checkedItem.id === child.id));
         }
 
         checkedItems.forEach((item) => {
@@ -69,7 +68,7 @@ const useProducts = (initialData?: ProductCategory[]): UseCheckboxTreeReturnType
             if (existingVariantIndex !== -1) {
                 // If the item is found, update its name based on the condition
                 if (allSelected) {
-                    tempVariants[existingVariantIndex].name = 'All ' + descendant.name;
+                    tempVariants[existingVariantIndex].name = 'All ' + descendant?.name;
                 } else if(level < 2){
                     tempVariants[existingVariantIndex].name = 'All ' + item.name;
                 } else {
@@ -79,7 +78,7 @@ const useProducts = (initialData?: ProductCategory[]): UseCheckboxTreeReturnType
                 // If the item is not found, add a new entry to tempVariants
                 let variant = {
                     id: level < 2 ? item.id : item.parentId,
-                    name: allSelected ? 'All ' + descendant.name : level < 2 ? "All " + item.name : descendant.name + " " + item.name
+                    name: allSelected ? 'All ' + descendant?.name : level < 2 ? "All " + item.name : descendant?.name + " " + item.name
                 };
                 tempVariants.push(variant);
             }
