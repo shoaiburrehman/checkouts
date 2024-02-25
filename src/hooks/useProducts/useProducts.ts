@@ -120,11 +120,8 @@ const useProducts = (productsData: ProductCategory[]): UseCheckboxTreeReturnType
     };
     
     const getAllDescendants = (item: ProductCategory): ProductCategory[] => {
-        if (item.children && item.children.length > 0) {
-            return item.children.reduce((acc, child) => [...acc, child, ...getAllDescendants(child)], []) as ProductCategory[];
-        } else {
-            return [];
-        }
+        if (!item.children || item.children.length === 0) return [];
+        return item.children.flatMap((child) => [child, ...getAllDescendants(child)]);
     };
 
     return { checkedItems, selectedVariants, isCheckedItem, toggleItem };
